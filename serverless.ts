@@ -5,7 +5,7 @@ import hello from "@functions/hello";
 const serverlessConfiguration: AWS = {
   service: "api.verify.gov.sg",
   frameworkVersion: "2",
-  plugins: ["serverless-esbuild"],
+  plugins: ["serverless-esbuild", "serverless-offline"],
   provider: {
     name: "aws",
     runtime: "nodejs14.x",

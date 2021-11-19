@@ -18,7 +18,8 @@
     "@govtechsg/open-attestation": "^6.2.0",
     "@middy/core": "^2.5.3",
     "@middy/http-json-body-parser": "^2.5.3",
-    "debug": "^4.3.2"
+    "debug": "^4.3.2",
+    "ethers": "^5.5.1"
   },
   "devDependencies": {
     "@serverless/typescript": "^2.23.0",

@@ -40,6 +40,7 @@ const serverlessConfiguration: AWS = {
       allowCache: true,
     },
   },
+  useDotenv: true,
 };
 
 module.exports = serverlessConfiguration;

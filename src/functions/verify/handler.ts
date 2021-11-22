@@ -8,10 +8,9 @@ const verify: ValidatedEventAPIGatewayProxyEvent<SignedWrappedDocument<OpenAttes
   const verifier = getVerifier();
 
   const fragments = await verifier(body);
-  const _isValid = isValid(fragments);
   const diagnostics = utils.diagnose({ version: "2.0", kind: "signed", document: body, mode: "strict" });
 
-  return formatJSONResponse({ isValid: _isValid, fragments, diagnostics });
+  return formatJSONResponse({ isValid: isValid(fragments), fragments, diagnostics });
 };
 
 export const main = middyfy(verify);

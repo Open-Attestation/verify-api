@@ -5,18 +5,20 @@ import { getResolver } from "ethr-did-resolver";
 import NodeCache from "node-cache";
 
 const NETWORK_NAME = process.env.NETWORK_NAME || "ropsten";
-const INFURA_API_KEY = process.env.INFURA_API_KEY;
+const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
 
 const didResolutionCache = new NodeCache({ stdTTL: 1 * 60 * 60 }); // 1 hour
 const customCache: DIDCache = async (parsed, resolve) => {
-  if (parsed.params && parsed.params["no-cache"] === "true") return await resolve();
+  if (parsed.params && parsed.params["no-cache"] === "true") {
+    const doc = await resolve();
+    return doc;
+  }
 
   const cachedResult = didResolutionCache.get<DIDResolutionResult>(parsed.didUrl);
   if (cachedResult) return cachedResult;
 
   const doc = await resolve();
   didResolutionCache.set(parsed.didUrl, doc);
-
   return doc;
 };
 

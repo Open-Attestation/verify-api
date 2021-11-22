@@ -1,19 +1,22 @@
-import { isValid, verificationBuilder, openAttestationVerifiers } from "@govtechsg/oa-verify";
-import { ethers } from "ethers";
-import { NETWORK_NAME, INFURA_API_KEY } from "../config";
+import { isValid, verificationBuilder, openAttestationVerifiers, createResolver } from "@govtechsg/oa-verify";
+import { providers } from "ethers";
 
-const provider = new ethers.providers.FallbackProvider(
-  [
-    { priority: 1, provider: new ethers.providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) },
-    // { priority: 10, provider: new ethers.providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY) },
-  ],
-  1
-);
+const NETWORK_NAME = process.env.REACT_APP_NETWORK_NAME || "ropsten";
+const INFURA_API_KEY = process.env.REACT_APP_INFURA_API_KEY;
+
+const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) : undefined;
+const resolver = INFURA_API_KEY
+  ? createResolver({
+      ethrResolverConfig: {
+        networks: [{ name: "mainnet", rpcUrl: `https://mainnet.infura.io/v3/${INFURA_API_KEY}` }],
+      },
+    })
+  : undefined;
 
 let verify;
 const getVerifier = () => {
   if (!verify) {
-    verify = verificationBuilder(openAttestationVerifiers, { provider });
+    verify = verificationBuilder(openAttestationVerifiers, { provider, resolver });
   }
 
   return verify;

@@ -1,7 +1,7 @@
 {
   "name": "api.verify.gov.sg",
   "version": "1.0.0",
-  "description": "Serverless aws-nodejs-typescript template",
+  "description": "Backend API endpoint for verify.gov.sg",
   "main": "serverless.ts",
   "scripts": {
     "dev": "cross-env DEBUG=api.verify.gov.sg:* sls offline",

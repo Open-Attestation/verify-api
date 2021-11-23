@@ -1,8 +1,8 @@
-import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/apiGateway";
+import type { ValidatedEventAPIGatewayProxyEvent } from "@libs/api-gateway";
 import { SignedWrappedDocument, OpenAttestationDocument, utils } from "@govtechsg/open-attestation";
-import { formatJSONResponse } from "@libs/apiGateway";
+import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
-import { isValid, getVerifier } from "@libs/oaVerify";
+import { isValid, getVerifier } from "@libs/oa-verify";
 
 const verify: ValidatedEventAPIGatewayProxyEvent<SignedWrappedDocument<OpenAttestationDocument>> = async ({ body }) => {
   const verifier = getVerifier();

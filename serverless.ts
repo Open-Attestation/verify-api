@@ -6,8 +6,7 @@ import hello from '@functions/hello';
 const STAGE = getArgumentValuesOrDefault({ flag: "stage", defaultValue: "dev" });
 
 const serverlessConfiguration = async (): Promise<AWS> => {
-    const service = 'api.verify.gov.sg';
-    const apiKeys: string[] = [`api-spm-${STAGE}-spmKey`];
+    const service = 'api-verify';
     const region  = 'ap-southeast-1';
     const ACCOUNT_ID = await getAWSAccountId();
     
@@ -19,18 +18,28 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         ],
         provider: {
             name: 'aws',
+            region,
             runtime: 'nodejs14.x',
-            stackName: "${STAGE}",
+            memorySize: 256,
+            timeout: 30,
+            stackName: `${service}-${STAGE}`,
+            stage: STAGE,
             apiGateway: {
                 minimumCompressionSize: 1024,
                 shouldStartNameWithService: true,
-                apiKeys
+                metrics: true
             },
             environment: {
             AWS_NODEJS_CONNECTION_REUSE_ENABLED: '1',
             NODE_OPTIONS: '--enable-source-maps --stack-trace-limit=1000',
             },
             lambdaHashingVersion: '20201221',
+            tracing: {
+                lambda: true,
+                apiGateway: true
+            },
+            rolePermissionsBoundary: `arn:aws:iam::${ACCOUNT_ID}:policy/GCCIAccountBoundary`,
+            deploymentBucket: notarise-serverless-deployment
         },
         // import the function via paths
         functions: { hello },

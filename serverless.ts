@@ -63,4 +63,4 @@ const serverlessConfiguration = async (): Promise<AWS> => {
   };
 };
 
-module.exports = serverlessConfiguration;
+module.exports = serverlessConfiguration();

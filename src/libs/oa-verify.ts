@@ -11,7 +11,7 @@ import { getData, utils } from "@govtechsg/open-attestation";
 import { providers } from "ethers";
 import { Resolver, DIDCache, DIDResolutionResult } from "did-resolver";
 import { getResolver } from "ethr-did-resolver";
-import * as NodeCache from "node-cache";
+import NodeCache from "node-cache";
 
 type AllowedIssuersValidFragment = ValidVerificationFragment<Array<string | undefined>>;
 type AllowedIssuersInvalidFragment = InvalidVerificationFragment<Array<string | undefined>>;

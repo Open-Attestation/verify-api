@@ -28,7 +28,7 @@ jobs:
     steps:
     - uses: benc-uk/workflow-dispatch@v1
       with:
-        workflow: ${{ secrets.DEPLOYER_WORKFLOW }}
-        repo: ${{ secrets.DEPLOYER_REPO }}
-        token: ${{ secrets.BOT_GITHUB_TOKEN_PRIVATE }}
+        workflow: ${{ secrets.NOTARISE_DEPLOYER_WORKFLOW }}
+        repo: ${{ secrets.NOTARISE_DEPLOYER_REPO }}
+        token: ${{ secrets.NOTARISE_REPO_TOKEN }}
         inputs: '{ "ref": "${{ github.ref }}" }'

@@ -15,7 +15,7 @@
     "import/prefer-default-export": "off",
     "arrow-body-style": "off"
   },
-  "ignorePatterns": ["commitlint.config.js"],
+  "ignorePatterns": ["*.config.js"],
   "settings": {
     "import/resolver": {
       "typescript": {}

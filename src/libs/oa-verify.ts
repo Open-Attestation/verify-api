@@ -11,7 +11,7 @@ import { getData, utils } from "@govtechsg/open-attestation";
 import { providers } from "ethers";
 import { Resolver, DIDCache, DIDResolutionResult } from "did-resolver";
 import { getResolver } from "ethr-did-resolver";
-import NodeCache from "node-cache";
+import * as NodeCache from "node-cache";
 
 type AllowedIssuersValidFragment = ValidVerificationFragment<Array<string | undefined>>;
 type AllowedIssuersInvalidFragment = InvalidVerificationFragment<Array<string | undefined>>;
@@ -116,7 +116,7 @@ const verifyAllowedIssuersMethod: VerifierType["verify"] = async (document) => {
   }
 };
 
-const verifyAllowedIssuers: VerifierType = {
+export const verifyAllowedIssuers: VerifierType = {
   skip: () => {
     throw new Error("This verifier is never skipped");
   },

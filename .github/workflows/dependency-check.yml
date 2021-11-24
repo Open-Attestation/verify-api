@@ -1,0 +1,39 @@
+name: OWASP Dependency Check
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: reference to a commit to deploy
+        required: true
+
+jobs:
+  dependency-check:
+    timeout-minutes: 360
+    runs-on: self-hosted
+    name: Dependency Check
+    container:
+      image: ubuntu:latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - uses: GovTechSG/dependency-check-action@v2.0.0
+        env:
+          JAVA_OPTS: "-Dodc.analysis.timeout=180"
+        with:
+          Project-Name: ${{ github.repository }}
+          Report-Format: HTML
+      - name: Upload Test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@master
+        with:
+          name: Depcheck report
+          path: ${{github.workspace}}/reports
+          retention-days: 4
+      - run: rm -rf ./*

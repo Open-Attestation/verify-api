@@ -1,0 +1,41 @@
+name: Deploy production
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: reference to a commit to deploy
+        required: true
+
+jobs:
+  create-new-tag:
+    name: Create New Git Tag for release after E2E
+    runs-on: self-hosted
+    container:
+      image: bitnami/git:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.33.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          WITH_V: true
+          RELEASE_BRANCHES: master
+          DEFAULT_BUMP: patch
+
+  # deploy-production:
+  #   name: deploy
+  #   runs-on: self-hosted
+  #   container:
+  #     image: ubuntu:latest
+  #   strategy:
+  #     matrix:
+  #       node-version: [14.x]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Use Node.js ${{ matrix.node-version }}
+  #     uses: actions/setup-node@v1
+  #     with:
+  #       node-version: ${{ matrix.node-version }}

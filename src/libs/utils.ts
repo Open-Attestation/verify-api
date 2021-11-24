@@ -25,14 +25,13 @@ export const getArgumentValuesOrDefault = ({ flag, defaultValue = "" }: ArgvPara
 
 export const getAWSAccountId = async (): Promise<string> => {
   if (process.env.IS_OFFLINE) return "123456789012";
-  else {
-    try {
-      const sts = new STS();
-      const result = await sts.getCallerIdentity().promise();
-      if (typeof result.Account !== "string") throw new Error("No account!");
-      return result.Account;
-    } catch (e) {
-      return "*";
-    }
+
+  try {
+    const sts = new STS();
+    const result = await sts.getCallerIdentity().promise();
+    if (typeof result.Account !== "string") throw new Error("No account!");
+    return result.Account;
+  } catch (e) {
+    return "*";
   }
 };

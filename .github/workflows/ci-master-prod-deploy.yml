@@ -5,9 +5,9 @@ on:
       ref:
         description: reference to a commit to deploy
         required: true
-  push:
-    tags:
-      - v[0-9]+.[0-9]+.[0-9]+
+  # push:
+  #   tags:
+  #     - v[0-9]+.[0-9]+.[0-9]+
 env:
   KMS_ARN: ${{ secrets.PRODUCTION_KMS_ARN }}
   DEPLOYMENT_ROLE: ${{ secrets.PRD_DEPLOYER_ROLE_ARN }}

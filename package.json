@@ -5,6 +5,7 @@
   "main": "serverless.ts",
   "scripts": {
     "dev": "cross-env DEBUG=api.verify.gov.sg:* sls offline",
+    "deploy": "sls deploy",
     "lint": "eslint . --ext ts,js --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
     "test": "jest"

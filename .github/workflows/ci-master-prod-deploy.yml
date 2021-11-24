@@ -1,0 +1,49 @@
+name: Deploy production
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: reference to a commit to deploy
+        required: true
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+
+env:
+  KMS_ARN: ${{ secrets.PRODUCTION_KMS_ARN }}
+  DEPLOYMENT_ROLE: ${{ secrets.PRD_DEPLOYER_ROLE_ARN }}
+  AWS_REGION: ap-southeast-1
+  SIGNING_KMS_KEY_ID: ${{ secrets.PRODUCTION_SIGNING_KMS_KEY_ID }}
+
+
+jobs:
+  deploy-production:
+    name: deploy
+    runs-on: self-hosted
+    container:
+      image: ubuntu:latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm  ci
+    - name: Assume deployment role
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ env.DEPLOYMENT_ROLE }}
+        role-skip-session-tagging: true
+        role-duration-seconds: 1800
+    - name: serverless deploy
+      run: npx sls deploy --conceal --stage production
+      env:
+        VPC_NAME: cmt-12230017
+        VPC_ENDPOINT_ID: vpce-08a8a266d162561de
+        VPC_ID: vpc-08e686e08c33b0441
+        SNS_KMS_KEY_ID: ${{ secrets.PRODUCTION_SNS_KMS_KEY_ID }}
+        SLS_DEBUG: "*"
+        AWSJS_DEBUG: "*"

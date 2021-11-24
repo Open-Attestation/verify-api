@@ -1,0 +1,80 @@
+name: CI - Master
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ master ]
+
+env:
+  DEPLOYMENT_ROLE: ${{ secrets.STG_DEPLOYER_ROLE_ARN }}
+  AWS_REGION: ap-southeast-1
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container:
+      image: ubuntu:latest
+    name: Tests
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+    - run: npm ci
+    - run: npm run lint
+    - run: npm run typecheck
+    - run: npm run test
+    - run: npm run sls-config-check
+
+  deploy-staging:
+    needs: [test]
+    name: Deploy Staging
+    runs-on: self-hosted
+    container:
+      image: ubuntu:latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - name: Assume deployment role
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ env.DEPLOYMENT_ROLE }}
+        role-skip-session-tagging: true
+        role-duration-seconds: 1800
+    - name: serverless deploy
+      run: npx sls deploy --conceal --stage stg
+      env:
+        VPC_NAME: cmt-12230016
+        VPC_ENDPOINT_ID: vpce-055e64410b81d675f
+        VPC_ID: vpc-05bcb786300025591
+        SNS_KMS_KEY_ID: ${{ secrets.STAGING_SNS_KMS_KEY_ID }}
+        SLS_DEBUG: "*"
+        AWSJS_DEBUG: "*"
+
+  create-new-tag:
+    needs: [deploy-staging]
+    name: Create New Git Tag for release after E2E
+    runs-on: self-hosted
+    container:
+      image: bitnami/git:latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.33.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          WITH_V: true
+          RELEASE_BRANCHES: master
+          DEFAULT_BUMP: patch

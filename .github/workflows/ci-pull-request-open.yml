@@ -1,0 +1,93 @@
+name: CI - Pull Request Open
+
+# Controls when the action will run. Triggers the workflow on push or pull request
+# events but only for the master branch
+on:
+  push:
+    branches: [ "!master" ]
+  pull_request:
+    branches: [ master ]
+    types:
+      - labeled
+      - unlabeled
+      - synchronize
+      - opened
+      - edited
+      - ready_for_review
+      - reopened
+      - unlocked
+
+env:
+  SLS_DEBUG: "*"
+  AWSJS_DEBUG: "*"
+  KMS_ARN: ${{ secrets.STAGING_KMS_ARN }}
+  DEPLOYMENT_ROLE: ${{ secrets.STG_DEPLOYER_ROLE_ARN }}
+  AWS_REGION: ap-southeast-1
+  SIGNING_KMS_KEY_ID: ${{ secrets.STAGING_SIGNING_KMS_KEY_ID }}
+
+jobs:
+  test:
+    runs-on: self-hosted
+    container:
+      image: ubuntu:latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '14.x'
+    - run: npm ci
+    - run: npm run lint
+    - run: npm run typecheck
+    - run: npm run test
+    - run: npm run sls-config-check
+
+  deploy-pr:
+    needs: [test]
+    name: Deploy Staging PR
+    runs-on: self-hosted
+    container:
+      image: ubuntu:latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v1
+      with:
+        node-version: ${{ matrix.node-version }}
+    - run: npm ci
+    - name: Assume deployment role
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-region: ${{ env.AWS_REGION }}
+        role-to-assume: ${{ env.DEPLOYMENT_ROLE }}
+        role-skip-session-tagging: true
+        role-duration-seconds: 1800
+    - name: serverless deploy PR
+      run: npx sls deploy --stage  stg-pr-${{ github.event.number }}
+      env:
+        VPC_NAME: cmt-12230016
+        SNS_KMS_KEY_ID: ${{ secrets.STAGING_SNS_KMS_KEY_ID }}
+        VPC_ENDPOINT_ID: vpce-055e64410b81d675f
+        VPC_ID: vpc-05bcb786300025591
+        SLS_DEBUG: "*"
+        AWSJS_DEBUG: "*"
+    - name: Serverless info extract
+      if: ${{ github.ref != 'refs/heads/master' }}
+      run: |
+        npx sls info --stage stg-pr-${{ github.event.number }} | sed '1,/Service Information/d' | tee out.txt
+        OUT=$(cat out.txt)
+        echo "SLS_INFO<<EOF" >> $GITHUB_ENV
+        echo "$OUT" >> $GITHUB_ENV
+        echo "EOF" >> $GITHUB_ENV
+    - uses: mshick/add-pr-comment@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        message: |
+          **ℹ️ Deployment info ℹ️**
+          ```
+          ${{ env.SLS_INFO }}
+          ```
+        allow-repeats: false

@@ -39,7 +39,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
                 apiGateway: true
             },
             rolePermissionsBoundary: `arn:aws:iam::${ACCOUNT_ID}:policy/GCCIAccountBoundary`,
-            deploymentBucket: notarise-serverless-deployment
+            deploymentBucket: 'notarise-serverless-deployment'
         },
         // import the function via paths
         functions: { hello },

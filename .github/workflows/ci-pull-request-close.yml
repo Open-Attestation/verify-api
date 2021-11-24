@@ -10,9 +10,7 @@ env:
 jobs:
   remove-pr:
     name: remove
-    runs-on: self-hosted
-    container:
-      image: ubuntu:latest
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         node-version: [14.x]

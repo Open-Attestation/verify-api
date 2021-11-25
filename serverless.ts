@@ -12,7 +12,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
   return {
     service,
     frameworkVersion: "2",
-    plugins: ["serverless-esbuild", "serverless-offline"],
+    plugins: ["serverless-esbuild", "serverless-offline", "serverless-domain-manager"],
     provider: {
       name: "aws",
       region,
@@ -58,6 +58,12 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       "serverless-offline": {
         allowCache: true,
       },
+      customDomain : {
+        domainName: process.env.DOMAIN_NAME,
+        basePath: '',
+        stage: STAGE,
+        createRoute53Record: false
+      }
     },
     useDotenv: true,
   };

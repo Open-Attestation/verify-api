@@ -28,6 +28,7 @@
     "ethr-did-resolver": "^5.0.2",
     "http-errors": "^1.8.1",
     "node-cache": "^5.1.2",
+    "serverless-domain-manager": "^5.2.0",
     "yargs": "^17.2.1"
   },
   "devDependencies": {

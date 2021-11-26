@@ -9,6 +9,8 @@ const serverlessConfiguration = async (): Promise<AWS> => {
   const region = "ap-southeast-1";
   const ACCOUNT_ID = await getAWSAccountId();
 
+  console.log(process.env);
+
   return {
     service,
     frameworkVersion: "2",

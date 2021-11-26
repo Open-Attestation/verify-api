@@ -1,4 +1,4 @@
-name: Deploy production
+name: CI - Master Deploy production
 on:
   workflow_dispatch:
     inputs:

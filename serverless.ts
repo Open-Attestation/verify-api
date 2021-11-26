@@ -60,9 +60,12 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       },
       customDomain : {
         domainName: process.env.DOMAIN_NAME,
+        certificateName: process.env.DOMAIN_NAME,
         basePath: '',
         stage: STAGE,
-        createRoute53Record: false
+        createRoute53Record: false,
+        endpointType: 'regional',
+        autoDomain: true
       }
     },
     useDotenv: true,

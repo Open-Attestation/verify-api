@@ -58,15 +58,15 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       "serverless-offline": {
         allowCache: true,
       },
-      customDomain : {
+      customDomain: {
         domainName: process.env.DOMAIN_NAME,
         certificateName: process.env.DOMAIN_NAME,
-        basePath: '',
+        basePath: "",
         stage: STAGE,
         createRoute53Record: false,
-        endpointType: 'regional',
-        autoDomain: true
-      }
+        endpointType: "regional",
+        autoDomain: true,
+      },
     },
     useDotenv: true,
   };

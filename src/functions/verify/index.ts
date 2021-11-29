@@ -9,6 +9,7 @@ export default <AWS["functions"][string]>{
         method: "post",
         path: "verify",
         request: {},
+        cors: true,
       },
     },
   ],

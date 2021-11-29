@@ -16,10 +16,10 @@ jobs:
       with:
         node-version: '14.x'
     - run: npm ci
-    # - run: npm run lint
-    # - run: npm run typecheck
-    # - run: npm run test
-    # - run: npm run sls-config-check
+    - run: npm run lint
+    - run: npm run typecheck
+    - run: npm run test
+    - run: npm run sls-config-check
   trigger-deploy-staging:
     needs: test
     name: Deploy Staging

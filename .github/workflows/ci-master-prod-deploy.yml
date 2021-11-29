@@ -1,4 +1,4 @@
-name: CI - Master Deploy production
+name: CI - Master Deploy Production
 on:
   workflow_dispatch:
     inputs:
@@ -17,13 +17,13 @@ jobs:
         with:
           fetch-depth: '0'
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
-      - name: Bump version and push tag
-        uses: anothrNick/github-tag-action@1.33.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
-          WITH_V: true
-          RELEASE_BRANCHES: master
-          DEFAULT_BUMP: patch
+      # - name: Bump version and push tag
+      #   uses: anothrNick/github-tag-action@1.33.0
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+      #     WITH_V: true
+      #     RELEASE_BRANCHES: master
+      #     DEFAULT_BUMP: patch
 
   # deploy-production:
   #   name: deploy

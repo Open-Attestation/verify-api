@@ -8,6 +8,8 @@
     "deploy": "sls deploy",
     "lint": "eslint . --ext ts,js --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
+    "typecheck": "tsc",
+    "sls-config-check": "sls print",
     "test": "jest"
   },
   "engines": {

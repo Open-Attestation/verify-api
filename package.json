@@ -8,6 +8,8 @@
     "deploy": "sls deploy",
     "lint": "eslint . --ext ts,js --max-warnings 0",
     "lint:fix": "npm run lint -- --fix",
+    "typecheck": "tsc",
+    "sls-config-check": "sls print",
     "test": "jest"
   },
   "engines": {
@@ -54,6 +56,7 @@
     "serverless": "^2.23.0",
     "serverless-esbuild": "^1.22.0",
     "serverless-offline": "^8.2.0",
+    "serverless-offline-ssm": "^5.2.0",
     "ts-jest": "^27.0.7",
     "ts-node": "^9.1.1",
     "tsconfig-paths": "^3.12.0",

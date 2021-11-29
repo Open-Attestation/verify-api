@@ -9,6 +9,8 @@
     "sourceMap": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
+    "noEmit": true,
+    "skipLibCheck": true,
     "target": "ES2020",
     "outDir": "lib"
   },

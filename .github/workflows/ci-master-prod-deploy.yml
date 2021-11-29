@@ -7,16 +7,16 @@ on:
         required: true
 
 jobs:
-  create-new-tag:
-    name: Create New Git Tag for release after E2E
-    runs-on: self-hosted
-    container:
-      image: bitnami/git:latest
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
-          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+  # create-new-tag:
+  #   name: Create New Git Tag for release after E2E
+  #   runs-on: self-hosted
+  #   container:
+  #     image: bitnami/git:latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       with:
+  #         fetch-depth: '0'
+  #         token: ${{ secrets.BOT_GITHUB_TOKEN }}
       # - name: Bump version and push tag
       #   uses: anothrNick/github-tag-action@1.33.0
       #   env:
@@ -25,17 +25,14 @@ jobs:
       #     RELEASE_BRANCHES: master
       #     DEFAULT_BUMP: patch
 
-  # deploy-production:
-  #   name: deploy
-  #   runs-on: self-hosted
-  #   container:
-  #     image: ubuntu:latest
-  #   strategy:
-  #     matrix:
-  #       node-version: [14.x]
-  #   steps:
-  #   - uses: actions/checkout@v2
-  #   - name: Use Node.js ${{ matrix.node-version }}
-  #     uses: actions/setup-node@v1
-  #     with:
-  #       node-version: ${{ matrix.node-version }}
+  trigger-deploy-production:
+    # needs: create-new-tag
+    name: Deploy Production
+    runs-on: ubuntu-latest
+    steps:
+    - uses: benc-uk/workflow-dispatch@v1
+      with:
+        workflow: ${{ secrets.NOTARISE_DEPLOYER_PRODUCTION_WORKFLOW }}
+        repo: ${{ secrets.NOTARISE_DEPLOYER_REPO }}
+        token: ${{ secrets.NOTARISE_REPO_TOKEN }}
+        inputs: '{ "ref": "${{ github.event.inputs.ref }}" }'

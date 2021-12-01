@@ -52,9 +52,7 @@ const customCache: DIDCache = async (parsed, resolve) => {
 };
 
 const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) : undefined;
-const ethrDidResolver = INFURA_API_KEY
-  ? getResolver({ name: NETWORK_NAME, rpcUrl: `https://${NETWORK_NAME}.infura.io/v3/${INFURA_API_KEY}` })
-  : undefined;
+const ethrDidResolver = INFURA_API_KEY ? getResolver({ infuraProjectId: INFURA_API_KEY }) : undefined;
 const resolver = INFURA_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
 
 export const isWhitelisted = (identity: string): boolean => {

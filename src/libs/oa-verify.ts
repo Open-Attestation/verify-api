@@ -55,7 +55,7 @@ const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INF
 const ethrDidResolver = INFURA_API_KEY
   ? getResolver({ name: NETWORK_NAME, rpcUrl: `https://${NETWORK_NAME}.infura.io/v3/${INFURA_API_KEY}` })
   : undefined;
-const resolver = new Resolver(ethrDidResolver, { cache: customCache });
+const resolver = INFURA_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
 
 export const isWhitelisted = (identity: string): boolean => {
   return (
@@ -127,7 +127,11 @@ export const verifyAllowedIssuers: VerifierType = {
 let verify;
 const getVerifier = () => {
   if (!verify) {
-    verify = verificationBuilder([...openAttestationVerifiers, verifyAllowedIssuers], { provider, resolver });
+    verify = verificationBuilder([...openAttestationVerifiers, verifyAllowedIssuers], {
+      provider,
+      resolver,
+      network: NETWORK_NAME,
+    });
   }
 
   return verify;

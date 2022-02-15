@@ -84,8 +84,8 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         basePath: "",
         stage: STAGE,
         createRoute53Record: false,
-        endpointType: "regional",
-        autoDomain: true,
+        endpointType: "edge",
+        autoDomain: false,
       },
     },
   };

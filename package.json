@@ -54,7 +54,7 @@
     "jest": "^27.5.1",
     "json-schema-to-ts": "^1.6.5",
     "prettier": "^2.5.1",
-    "serverless": "^2.72.2",
+    "serverless": "^3.8.0",
     "serverless-esbuild": "^1.24.1",
     "serverless-offline": "^8.4.0",
     "serverless-offline-ssm": "^5.2.0",

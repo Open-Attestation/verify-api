@@ -22,7 +22,7 @@
     "@middy/core": "^2.5.7",
     "@middy/http-cors": "^2.5.7",
     "@middy/http-json-body-parser": "^2.5.7",
-    "@types/yargs": "^17.0.8",
+    "@types/yargs": "^17.0.9",
     "aws-sdk": "^2.1074.0",
     "debug": "^4.3.3",
     "did-resolver": "^3.1.5",

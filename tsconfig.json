@@ -1,5 +1,4 @@
 {
-  "extends": "./tsconfig.paths.json",
   "compilerOptions": {
     "lib": ["ESNext"],
     "moduleResolution": "node",
@@ -11,10 +10,18 @@
     "esModuleInterop": true,
     "noEmit": true,
     "skipLibCheck": true,
+    "resolveJsonModule": true,
     "target": "ES2020",
-    "outDir": "lib"
+    "outDir": "lib",
+    "baseUrl": ".",
+    "paths": {
+      "@functions/*": ["src/functions/*"],
+      "@libs/*": ["src/libs/*"],
+      "@middlewares/*": ["src/middlewares/*"],
+      "@fixtures/*": ["fixtures/*"]
+    }
   },
-  "include": ["src/**/*.ts", "serverless.ts"],
+  "include": ["src/**/*.ts", "serverless.ts", "jest.config.ts"],
   "exclude": ["node_modules/**/*", ".serverless/**/*", ".webpack/**/*", "_warmup/**/*", ".vscode/**/*"],
   "ts-node": {
     "require": ["tsconfig-paths/register"]

@@ -1,6 +1,6 @@
 # api.verify.gov.sg
 
-An API endpoint for `verify.gov.sg` to perform verification of Open Attestation documents.
+An API endpoint for `verify.gov.sg` to perform verification of OpenAttestation documents.
 
 ## Prerequisites
 

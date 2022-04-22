@@ -33,7 +33,8 @@ enum VerifyAllowedIssuersCode {
 }
 
 const NETWORK_NAME = process.env.NETWORK_NAME || "ropsten";
-const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
+// const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY; // eslint-disable-line prefer-destructuring
 const WHITELISTED_ISSUERS = process.env.WHITELISTED_ISSUERS?.split(",") || ["gov.sg", "openattestation.com"];
 
 const didResolutionCache = new NodeCache({ stdTTL: 1 * 60 * 60 }); // 1 hour
@@ -51,9 +52,13 @@ const customCache: DIDCache = async (parsed, resolve) => {
   return doc;
 };
 
-const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) : undefined;
-const ethrDidResolver = INFURA_API_KEY ? getResolver({ infuraProjectId: INFURA_API_KEY }) : undefined;
-const resolver = INFURA_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
+// const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) : undefined;
+// const ethrDidResolver = INFURA_API_KEY ? getResolver({ infuraProjectId: INFURA_API_KEY }) : undefined;
+// const resolver = INFURA_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
+
+const provider = ALCHEMY_API_KEY ? new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY) : undefined;
+const ethrDidResolver = ALCHEMY_API_KEY ? getResolver({ infuraProjectId: ALCHEMY_API_KEY }) : undefined;
+const resolver = ALCHEMY_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
 
 export const isWhitelisted = (identity: string): boolean => {
   return (

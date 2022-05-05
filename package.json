@@ -25,7 +25,7 @@
     "aws-sdk": "^2.1104.0",
     "debug": "^4.3.4",
     "did-resolver": "^3.2.0",
-    "ethers": "^5.6.2",
+    "ethers": "^5.6.3",
     "ethr-did-resolver": "^5.0.4",
     "http-errors": "^2.0.0",
     "node-cache": "^5.1.2",

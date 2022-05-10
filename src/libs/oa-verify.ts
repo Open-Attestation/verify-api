@@ -139,7 +139,7 @@ const customCache: DIDCache = async (parsed, resolve) => {
   return doc;
 };
 
-let verify: typeof defaultVerify = undefined;
+let verify: typeof defaultVerify;
 
 /**
  * Returns a cached instance of `verify()` that was only instantiated once
@@ -147,7 +147,7 @@ let verify: typeof defaultVerify = undefined;
  */
 const getVerifier = () => {
   if (!verify) {
-    let config: { providers: providers.FallbackProviderConfig[]; resolvers: MultiProviderConfiguration } = {
+    const config: { providers: providers.FallbackProviderConfig[]; resolvers: MultiProviderConfiguration } = {
       providers: [],
       resolvers: { networks: [] },
     };

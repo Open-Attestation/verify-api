@@ -35,6 +35,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         STAGE,
         NETWORK_NAME: "${ssm:/serverless/api-verify-gov-sg/NETWORK_NAME}",
         INFURA_API_KEY: "${ssm:/serverless/api-verify-gov-sg/INFURA_API_KEY~true}",
+        ALCHEMY_API_KEY: "${ssm:/serverless/api-verify-gov-sg/ALCHEMY_API_KEY~true}",
         WHITELISTED_ISSUERS: "${ssm:/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS}",
       },
       lambdaHashingVersion: "20201221",

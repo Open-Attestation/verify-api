@@ -1,5 +1,6 @@
 import { isValid, verificationBuilder, openAttestationVerifiers, CodedError } from "@govtechsg/oa-verify";
 import type {
+  verify as defaultVerify,
   Verifier,
   SkippedVerificationFragment,
   ValidVerificationFragment,
@@ -11,8 +12,10 @@ import { getData, utils } from "@govtechsg/open-attestation";
 import { providers } from "ethers";
 import { Resolver, DIDCache, DIDResolutionResult } from "did-resolver";
 import { getResolver } from "ethr-did-resolver";
+import { MultiProviderConfiguration } from "ethr-did-resolver/lib/configuration";
 import NodeCache from "node-cache";
 
+/** ========= TYPES ========= */
 type AllowedIssuersValidFragment = ValidVerificationFragment<Array<string | undefined>>;
 type AllowedIssuersInvalidFragment = InvalidVerificationFragment<Array<string | undefined>>;
 type AllowedIssuersErrorFragment = ErrorVerificationFragment<any>;
@@ -32,29 +35,17 @@ enum VerifyAllowedIssuersCode {
   UNSUPPORTED_V3_DOCUMENT = 3,
 }
 
+/* ========= Environment Variables ========= */
 const NETWORK_NAME = process.env.NETWORK_NAME || "ropsten";
 const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
+const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY; // eslint-disable-line prefer-destructuring
 const WHITELISTED_ISSUERS = process.env.WHITELISTED_ISSUERS?.split(",") || ["gov.sg", "openattestation.com"];
 
-const didResolutionCache = new NodeCache({ stdTTL: 1 * 60 * 60 }); // 1 hour
-const customCache: DIDCache = async (parsed, resolve) => {
-  if (parsed.params && parsed.params["no-cache"] === "true") {
-    const doc = await resolve();
-    return doc;
-  }
-
-  const cachedResult = didResolutionCache.get<DIDResolutionResult>(parsed.didUrl);
-  if (cachedResult) return cachedResult;
-
-  const doc = await resolve();
-  didResolutionCache.set(parsed.didUrl, doc);
-  return doc;
-};
-
-const provider = INFURA_API_KEY ? new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY) : undefined;
-const ethrDidResolver = INFURA_API_KEY ? getResolver({ infuraProjectId: INFURA_API_KEY }) : undefined;
-const resolver = INFURA_API_KEY ? new Resolver(ethrDidResolver, { cache: customCache }) : undefined;
-
+/**
+ * Returns true if issuer identity is whitelisted
+ * @param identity
+ * @returns
+ */
 export const isWhitelisted = (identity: string): boolean => {
   return (
     WHITELISTED_ISSUERS.some((issuer) => identity.toLowerCase().endsWith(`.${issuer}`)) ||
@@ -62,6 +53,11 @@ export const isWhitelisted = (identity: string): boolean => {
   );
 };
 
+/**
+ * Custom verification method to only allow whitelisted issuers
+ * @param document
+ * @returns
+ */
 const verifyAllowedIssuersMethod: VerifierType["verify"] = async (document) => {
   const name = "VerifyAllowedIssuers";
   const type: VerificationFragmentType = "ISSUER_IDENTITY";
@@ -114,6 +110,11 @@ const verifyAllowedIssuersMethod: VerifierType["verify"] = async (document) => {
   }
 };
 
+/**
+ * Custom verifier to only allow whitelisted issuers
+ *
+ * Refer to: https://github.com/Open-Attestation/oa-verify#extending-custom-verification
+ */
 export const verifyAllowedIssuers: VerifierType = {
   skip: () => {
     throw new Error("This verifier is never skipped");
@@ -122,9 +123,52 @@ export const verifyAllowedIssuers: VerifierType = {
   verify: verifyAllowedIssuersMethod,
 };
 
-let verify;
+/* ========= Instantiate a single instance of cache, verify, provider, resolver ========= */
+const didResolutionCache = new NodeCache({ stdTTL: 1 * 60 * 60 }); // 1 hour
+const customCache: DIDCache = async (parsed, resolve) => {
+  if (parsed.params && parsed.params["no-cache"] === "true") {
+    const doc = await resolve();
+    return doc;
+  }
+
+  const cachedResult = didResolutionCache.get<DIDResolutionResult>(parsed.didUrl);
+  if (cachedResult) return cachedResult;
+
+  const doc = await resolve();
+  didResolutionCache.set(parsed.didUrl, doc);
+  return doc;
+};
+
+let verify: typeof defaultVerify = undefined;
+
+/**
+ * Returns a cached instance of `verify()` that was only instantiated once
+ * @returns
+ */
 const getVerifier = () => {
   if (!verify) {
+    let config: { providers: providers.FallbackProviderConfig[]; resolvers: MultiProviderConfiguration } = {
+      providers: [],
+      resolvers: { networks: [] },
+    };
+
+    if (INFURA_API_KEY) {
+      const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
+      config.providers.push({ provider: infuraProvider, priority: 1 });
+      config.resolvers.networks.push({ name: NETWORK_NAME, provider: infuraProvider });
+    }
+    if (ALCHEMY_API_KEY) {
+      const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
+      config.providers.push({ provider: new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY), priority: 2 });
+      config.resolvers.networks.push({ name: NETWORK_NAME, provider: alchemyProvider });
+    }
+
+    const provider = config.providers.length > 0 ? new providers.FallbackProvider(config.providers) : undefined;
+    const resolver =
+      config.resolvers.networks.length > 0
+        ? new Resolver(getResolver(config.resolvers), { cache: customCache })
+        : undefined;
+
     verify = verificationBuilder([...openAttestationVerifiers, verifyAllowedIssuers], {
       provider,
       resolver,

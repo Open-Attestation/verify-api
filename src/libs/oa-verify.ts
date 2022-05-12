@@ -152,15 +152,22 @@ const getVerifier = () => {
       resolvers: { networks: [] },
     };
 
+    /**
+     * 1. Infura - Provider Priority: 1, Resolver Index: 1
+     * 2. Alchemy - Provider Priority: 2, Resolver Index: 0
+     *
+     * Provider: Lower-value priorities are favoured: https://docs.ethers.io/v5/api/providers/other/#FallbackProviderConfig
+     * Resolver: Infura resolver should be last item in array so that it will be used first
+     */
     if (INFURA_API_KEY) {
       const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
       config.providers.push({ provider: infuraProvider, priority: 1 });
-      config.resolvers.networks.push({ name: NETWORK_NAME, provider: infuraProvider });
+      config.resolvers.networks.unshift({ name: NETWORK_NAME, provider: infuraProvider });
     }
     if (ALCHEMY_API_KEY) {
       const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
       config.providers.push({ provider: new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY), priority: 2 });
-      config.resolvers.networks.push({ name: NETWORK_NAME, provider: alchemyProvider });
+      config.resolvers.networks.unshift({ name: NETWORK_NAME, provider: alchemyProvider });
     }
 
     const provider = config.providers.length > 0 ? new providers.FallbackProvider(config.providers) : undefined;

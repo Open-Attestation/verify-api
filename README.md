@@ -15,7 +15,6 @@ To run locally, ensure the required environment variables are set in `.env`. Ref
 ```text
 /serverless/api-verify-gov-sg/NETWORK_NAME=mainnet
 /serverless/api-verify-gov-sg/INFURA_API_KEY=somekey
-/serverless/api-verify-gov-sg/ALCHEMY_API_KEY=somekey
 /serverless/api-verify-gov-sg/WHITELISTED_ISSUERS=gov.sg,openattestation.com
 ```
 

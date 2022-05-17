@@ -162,12 +162,14 @@ const getVerifier = () => {
     if (INFURA_API_KEY) {
       const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
       config.providers.push({ provider: infuraProvider, priority: 1 });
-      config.resolvers.networks.unshift({ name: NETWORK_NAME, provider: infuraProvider });
+      config.resolvers.networks.unshift({ name: "ropsten", provider: infuraProvider });
+      config.resolvers.networks.unshift({ name: "mainnet", provider: infuraProvider });
     }
     if (ALCHEMY_API_KEY) {
       const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
       config.providers.push({ provider: new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY), priority: 2 });
-      config.resolvers.networks.unshift({ name: NETWORK_NAME, provider: alchemyProvider });
+      config.resolvers.networks.unshift({ name: "ropsten", provider: alchemyProvider });
+      config.resolvers.networks.unshift({ name: "mainnet", provider: alchemyProvider });
     }
 
     const provider = config.providers.length > 0 ? new providers.FallbackProvider(config.providers) : undefined;

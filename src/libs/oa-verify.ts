@@ -167,7 +167,7 @@ const getVerifier = () => {
     }
     if (ALCHEMY_API_KEY) {
       const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
-      config.providers.push({ provider: new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY), priority: 2 });
+      config.providers.push({ provider: alchemyProvider, priority: 2 });
       config.resolvers.networks.unshift({ name: "ropsten", provider: alchemyProvider });
       config.resolvers.networks.unshift({ name: "mainnet", provider: alchemyProvider });
     }

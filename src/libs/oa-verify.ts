@@ -161,7 +161,7 @@ const getVerifier = () => {
      */
     if (INFURA_API_KEY) {
       const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
-      config.providers.push({ provider: infuraProvider, priority: 1 });
+      config.providers.push({ provider: infuraProvider, priority: 1, stallTimeout: 4000 });
       config.resolvers.networks.unshift({ name: "ropsten", provider: infuraProvider });
       config.resolvers.networks.unshift({ name: "mainnet", provider: infuraProvider });
     }

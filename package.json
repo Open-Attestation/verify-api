@@ -30,7 +30,7 @@
     "http-errors": "^2.0.0",
     "node-cache": "^5.1.2",
     "serverless-domain-manager": "^6.0.2",
-    "yargs": "^17.4.0"
+    "yargs": "^17.4.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^16.2.3",

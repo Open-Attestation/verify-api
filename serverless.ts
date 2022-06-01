@@ -11,7 +11,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
 
   return {
     service,
-    frameworkVersion: "2",
+    configValidationMode: "error",
     plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager"],
     provider: {
       name: "aws",
@@ -34,20 +34,19 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
         STAGE,
         NETWORK_NAME: "${ssm:/serverless/api-verify-gov-sg/NETWORK_NAME}",
-        INFURA_API_KEY: "${ssm:/serverless/api-verify-gov-sg/INFURA_API_KEY~true}",
-        ALCHEMY_API_KEY: "${ssm:/serverless/api-verify-gov-sg/ALCHEMY_API_KEY~true}",
+        INFURA_API_KEY: "${ssm:/serverless/api-verify-gov-sg/INFURA_API_KEY}",
+        ALCHEMY_API_KEY: "${ssm:/serverless/api-verify-gov-sg/ALCHEMY_API_KEY}",
         WHITELISTED_ISSUERS: "${ssm:/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS}",
       },
-      lambdaHashingVersion: "20201221",
       tracing: {
         lambda: true,
         apiGateway: true,
       },
-      rolePermissionsBoundary: `arn:aws:iam::${ACCOUNT_ID}:policy/GCCIAccountBoundary`,
       deploymentBucket: "notarise-serverless-deployment",
       iam: {
         role: {
           name: `api-verify-gov-sg-${STAGE}-lambda`,
+          permissionsBoundary: `arn:aws:iam::${ACCOUNT_ID}:policy/GCCIAccountBoundary`,
           statements: [
             {
               // https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
@@ -58,6 +57,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
           ],
         },
       },
+      versionFunctions: false
     },
     // import the function via paths
     functions: { verify },
@@ -77,7 +77,13 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         allowCache: true,
       },
       "serverless-offline-ssm": {
-        stages: ["dev"],
+        stages: ["dev", "offline"],
+        ssm: {
+          '/serverless/api-verify-gov-sg/NETWORK_NAME': 'homestead',
+          '/serverless/api-verify-gov-sg/INFURA_API_KEY': 'infura123',
+          '/serverless/api-verify-gov-sg/ALCHEMY_API_KEY': 'alchemy123',
+          '/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS': 'S1234567A'
+        }
       },
       customDomain: {
         domainName: process.env.DOMAIN_NAME,

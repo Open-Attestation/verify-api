@@ -7,26 +7,26 @@ on:
         required: true
 
 jobs:
-  # create-new-tag:
-  #   name: Create New Git Tag for release after E2E
-  #   runs-on: self-hosted
-  #   container:
-  #     image: bitnami/git:latest
-  #   steps:
-  #     - uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: '0'
-  #         token: ${{ secrets.BOT_GITHUB_TOKEN }}
-      # - name: Bump version and push tag
-      #   uses: anothrNick/github-tag-action@1.33.0
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
-      #     WITH_V: true
-      #     RELEASE_BRANCHES: master
-      #     DEFAULT_BUMP: patch
+  create-new-tag:
+    name: Create New Git Tag for release after E2E
+    runs-on: self-hosted
+    container:
+      image: bitnami/git:latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: '0'
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
+      - name: Bump version and push tag
+        uses: anothrNick/github-tag-action@1.39.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          WITH_V: true
+          RELEASE_BRANCHES: master
+          DEFAULT_BUMP: patch
 
   trigger-deploy-production:
-    # needs: create-new-tag
+    needs: create-new-tag
     name: Deploy Production
     runs-on: ubuntu-latest
     steps:

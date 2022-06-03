@@ -30,6 +30,7 @@
     "http-errors": "^2.0.0",
     "node-cache": "^5.1.2",
     "serverless-domain-manager": "^6.0.2",
+    "serverless-slic-watch-plugin": "^1.2.0",
     "yargs": "^17.4.0"
   },
   "devDependencies": {

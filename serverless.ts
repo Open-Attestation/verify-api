@@ -85,6 +85,39 @@ const serverlessConfiguration = async (): Promise<AWS> => {
           '/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS': 'S1234567A'
         }
       },
+      "slicWatchEnable": {
+        "production": true,
+        "stg": false,
+        "other": false
+      },
+      "slicWatch": {
+        "topicArn": "arn:aws:sns:${self:provider.region}:${ACCOUNT_ID}:sns-slack-notifier",
+        "enabled": "${self:custom.slicWatchEnable.${self:provider.stage}, self:custom.slicWatchEnable.other}",
+        "alarms": {
+          "enabled": true,
+          "Period": 60,
+          "EvaluationPeriods": 5,
+          "ComparisonOperator": "GreaterThanThreshold",
+          "Lambda": {
+            "enabled": false
+          },
+          "ApiGateway": {
+            "5XXError": {
+              "Statistic": "Average",
+              "Threshold": 0.15
+            },
+            "4XXError": {
+              "Statistic": "Average",
+              "Threshold": 0.15
+            },
+            "Latency": {
+              "EvaluationPeriods": 10,
+              "Statistic": "Average",
+              "ExtendedStatistic": null
+            }
+          }
+        }
+      },
       customDomain: {
         domainName: process.env.DOMAIN_NAME,
         certificateName: process.env.DOMAIN_NAME,

@@ -78,12 +78,6 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       },
       "serverless-offline-ssm": {
         stages: ["dev", "offline"],
-        ssm: {
-          '/serverless/api-verify-gov-sg/NETWORK_NAME': 'homestead',
-          '/serverless/api-verify-gov-sg/INFURA_API_KEY': 'infura123',
-          '/serverless/api-verify-gov-sg/ALCHEMY_API_KEY': 'alchemy123',
-          '/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS': 'S1234567A'
-        }
       },
       customDomain: {
         domainName: process.env.DOMAIN_NAME,

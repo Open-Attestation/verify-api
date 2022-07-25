@@ -36,7 +36,7 @@ curl --location --request POST 'localhost:3000/dev/verify' \
 
 **Sample response**:
 
-```json
+```jsonc
 {
   "isValid": true,
   "fragments": [

@@ -12,7 +12,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
   return {
     service,
     configValidationMode: "error",
-    plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager"],
+    plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager","serverless-stack-termination-protection"],
     provider: {
       name: "aws",
       region,
@@ -42,6 +42,15 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         lambda: true,
         apiGateway: true,
       },
+      logs: {
+        restApi: {
+          accessLogging: true,
+          executionLogging: true,
+          level: "INFO",
+          roleManagedExternally: true,
+          fullExecutionData: false,
+        },
+      },
       deploymentBucket: "notarise-serverless-deployment",
       iam: {
         role: {
@@ -63,6 +72,9 @@ const serverlessConfiguration = async (): Promise<AWS> => {
     functions: { verify },
     package: { individually: true },
     custom: {
+      serverlessTerminationProtection: {
+        stages: ["production", "stg"],
+      },
       esbuild: {
         bundle: true,
         minify: false,

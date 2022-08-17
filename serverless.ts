@@ -12,7 +12,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
   return {
     service,
     configValidationMode: "error",
-    plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager","serverless-stack-termination-protection"],
+    plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager","serverless-stack-termination-protection","serverless-associate-waf"],
     provider: {
       name: "aws",
       region,

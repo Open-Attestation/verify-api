@@ -72,6 +72,10 @@ const serverlessConfiguration = async (): Promise<AWS> => {
     functions: { verify },
     package: { individually: true },
     custom: {
+      associateWaf: {
+        name: process.env.WAF_NAME,
+        version: 'V2'
+      },
       serverlessTerminationProtection: {
         stages: ["production", "stg"],
       },

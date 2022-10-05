@@ -36,7 +36,7 @@ enum VerifyAllowedIssuersCode {
 }
 
 /* ========= Environment Variables ========= */
-const NETWORK_NAME = process.env.NETWORK_NAME || "ropsten";
+const NETWORK_NAME = process.env.NETWORK_NAME || "goerli";
 const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY; // eslint-disable-line prefer-destructuring
 const WHITELISTED_ISSUERS = process.env.WHITELISTED_ISSUERS?.split(",") || ["gov.sg", "openattestation.com"];
@@ -162,13 +162,13 @@ const getVerifier = () => {
     if (INFURA_API_KEY) {
       const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
       config.providers.push({ provider: infuraProvider, priority: 1, stallTimeout: 4000 });
-      config.resolvers.networks.unshift({ name: "ropsten", provider: infuraProvider });
+      config.resolvers.networks.unshift({ name: "goerli", provider: infuraProvider });
       config.resolvers.networks.unshift({ name: "mainnet", provider: infuraProvider });
     }
     if (ALCHEMY_API_KEY) {
       const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
       config.providers.push({ provider: alchemyProvider, priority: 2 });
-      config.resolvers.networks.unshift({ name: "ropsten", provider: alchemyProvider });
+      config.resolvers.networks.unshift({ name: "goerli", provider: alchemyProvider });
       config.resolvers.networks.unshift({ name: "mainnet", provider: alchemyProvider });
     }
 

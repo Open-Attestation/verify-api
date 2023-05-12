@@ -13,7 +13,7 @@
     "test": "jest"
   },
   "engines": {
-    "node": ">=14.15.0"
+    "node": ">=18"
   },
   "dependencies": {
     "@govtechsg/oa-encryption": "^1.3.5",

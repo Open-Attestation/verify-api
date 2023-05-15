@@ -4,7 +4,7 @@ An API endpoint for `verify.gov.sg` to perform verification of OpenAttestation d
 
 ## Prerequisites
 
-NodeJS `lts/fermium (v.14.15.0)`. If you're using [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to ensure you're using the same Node version in local and in your lambda's runtime.
+NodeJS `lts/hydrogen (v18)`. If you're using [nvm](https://github.com/nvm-sh/nvm), run `nvm use` to ensure you're using the same Node version in local and in your lambda's runtime.
 
 ## Getting Started
 

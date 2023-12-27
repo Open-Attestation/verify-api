@@ -34,9 +34,13 @@ enum VerifyAllowedIssuersCode {
   SKIPPED = 2,
   UNSUPPORTED_V3_DOCUMENT = 3,
 }
-
+enum NETWORKS {
+  SEPOLIA = "sepolia",
+  MAINNET = "mainnet",
+}
 /* ========= Environment Variables ========= */
-const NETWORK_NAME = process.env.NETWORK_NAME || "goerli";
+const NETWORK_NAME = process.env.NETWORK_NAME || NETWORKS.SEPOLIA;
+
 const INFURA_API_KEY = process.env.INFURA_API_KEY; // eslint-disable-line prefer-destructuring
 const ALCHEMY_API_KEY = process.env.ALCHEMY_API_KEY; // eslint-disable-line prefer-destructuring
 const WHITELISTED_ISSUERS = process.env.WHITELISTED_ISSUERS?.split(",") || ["gov.sg", "openattestation.com"];
@@ -160,16 +164,29 @@ const getVerifier = () => {
      * Resolver: Infura resolver should be last item in array so that it will be used first
      */
     if (INFURA_API_KEY) {
-      const infuraProvider = new providers.InfuraProvider(NETWORK_NAME, INFURA_API_KEY);
-      config.providers.push({ provider: infuraProvider, priority: 1, stallTimeout: 4000 });
-      config.resolvers.networks.unshift({ name: "goerli", provider: infuraProvider });
-      config.resolvers.networks.unshift({ name: "mainnet", provider: infuraProvider });
+      const infuraProviderSepolia = new providers.InfuraProvider(NETWORKS.SEPOLIA, INFURA_API_KEY);
+      const infuraProviderMainnet = new providers.InfuraProvider(NETWORKS.MAINNET, INFURA_API_KEY);
+      config.providers.push({
+        provider: NETWORK_NAME === NETWORKS.MAINNET ? infuraProviderMainnet : infuraProviderSepolia,
+        priority: 1,
+        stallTimeout: 4000,
+      });
+      config.resolvers.networks.unshift({ name: NETWORKS.MAINNET, provider: infuraProviderMainnet });
     }
     if (ALCHEMY_API_KEY) {
-      const alchemyProvider = new providers.AlchemyProvider(NETWORK_NAME, ALCHEMY_API_KEY);
-      config.providers.push({ provider: alchemyProvider, priority: 2 });
-      config.resolvers.networks.unshift({ name: "goerli", provider: alchemyProvider });
-      config.resolvers.networks.unshift({ name: "mainnet", provider: alchemyProvider });
+      // Handling sepolia network differently because ethers v5 AlchemyProvider doesn't support Sepolia
+      // TODO: use ethers v6 AlchemyProvider once ethers version is able to be bumped
+      const alchemyProviderSepolia = new providers.StaticJsonRpcProvider(
+        `https://eth-sepolia.g.alchemy.com/v2/${ALCHEMY_API_KEY}`,
+        NETWORKS.SEPOLIA
+      );
+      const alchemyProviderMainnet = new providers.AlchemyProvider(NETWORKS.MAINNET, ALCHEMY_API_KEY);
+
+      config.providers.push({
+        provider: NETWORK_NAME === NETWORKS.MAINNET ? alchemyProviderMainnet : alchemyProviderSepolia,
+        priority: 2,
+      });
+      config.resolvers.networks.unshift({ name: NETWORKS.MAINNET, provider: alchemyProviderMainnet });
     }
 
     const provider = config.providers.length > 0 ? new providers.FallbackProvider(config.providers) : undefined;

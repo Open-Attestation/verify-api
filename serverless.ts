@@ -5,11 +5,11 @@ import verify from "@functions/verify";
 const STAGE = getArgumentValuesOrDefault({ flag: "stage", defaultValue: "dev" });
 
 const serverlessConfiguration = async (): Promise<AWS> => {
-  const service = "notarise-verify-api";
   const region = "ap-southeast-1";
 
   return {
-    service,
+    useDotenv: true,
+    service: "${env:PROJECT_NAME}-verify-api",
     configValidationMode: "error",
     plugins: ["serverless-esbuild", "serverless-domain-manager", "serverless-stack-termination-protection", "serverless-associate-waf", "serverless-iamroles", "serverless-offline", "serverless-offline-ssm"],
     provider: {
@@ -18,7 +18,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       runtime: "nodejs18.x",
       memorySize: 256,
       timeout: 30,
-      stackName: 'notarise-${self:provider.stage}-verify-api',
+      stackName: '${self:custom.project}-${self:provider.stage}-verify-api',
       stage: STAGE,
       apiGateway: {
         minimumCompressionSize: 1024,
@@ -32,10 +32,10 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
         NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
         STAGE,
-        NETWORK_NAME: "${ssm:/notarise/${self:provider.stage}/network-name}",
-        INFURA_API_KEY: "${ssm:/notarise/${self:provider.stage}/infura-api-key}",
-        ALCHEMY_API_KEY: "${ssm:/notarise/${self:provider.stage}/alchemy-api-key}",
-        WHITELISTED_ISSUERS: "${ssm:/notarise/${self:provider.stage}/whitelisted-issuers}",
+        NETWORK_NAME: "${ssm:/${self:custom.project}/${self:provider.stage}/network-name}",
+        INFURA_API_KEY: "${ssm:/${self:custom.project}/${self:provider.stage}/infura-api-key}",
+        ALCHEMY_API_KEY: "${ssm:/${self:custom.project}/${self:provider.stage}/alchemy-api-key}",
+        WHITELISTED_ISSUERS: "${ssm:/${self:custom.project}/${self:provider.stage}/whitelisted-issuers}",
       },
       tracing: {
         lambda: true,
@@ -48,14 +48,14 @@ const serverlessConfiguration = async (): Promise<AWS> => {
           level: "INFO",
           roleManagedExternally: true,
           fullExecutionData: true,
-          role: '${ssm:/notarise/${self:provider.stage}/cloudwatch-log-role-arn}',
+          role: '${ssm:/${self:custom.project}/${self:provider.stage}/cloudwatch-log-role-arn}',
         },
       },
       deploymentBucket: {
         name: '${self:custom.infra.deploymentBucket}',
       },
       endpointType:
-        '${ssm:/notarise/${self:provider.stage}/api-gateway-endpoint-type, "REGIONAL"}',
+        '${ssm:/${self:custom.project}/${self:provider.stage}/api-gateway-endpoint-type, "REGIONAL"}',
       iam: {
         role: {
           name: "${self:provider.stackName}-lambda",
@@ -74,15 +74,16 @@ const serverlessConfiguration = async (): Promise<AWS> => {
     functions: { verify },
     package: { individually: true },
     custom: {
+      project: '${env:PROJECT_NAME}',
       infra: {
         deploymentBucket:
-          '${ssm:/notarise/${self:provider.stage}/deployment-bucket}',
+          '${ssm:/${self:custom.project}/${self:provider.stage}/deployment-bucket}',
         securityGroupIds:
-          '${ssm:/notarise/${self:provider.stage}/security-group-ids}',
-        subnetIds: '${ssm:/notarise/${self:provider.stage}/subnet-ids}',
+          '${ssm:/${self:custom.project}/${self:provider.stage}/security-group-ids}',
+        subnetIds: '${ssm:/${self:custom.project}/${self:provider.stage}/subnet-ids}',
       },
       associateWaf: {
-        name: "${ssm:/notarise/${self:provider.stage}/wafv2-name}",
+        name: "${ssm:/${self:custom.project}/${self:provider.stage}/wafv2-name}",
         version: 'V2'
       },
       serverlessTerminationProtection: {
@@ -105,7 +106,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         concurrency: 10,
       },
       customDomain: {
-        domainName: '${ssm:/notarise/${self:provider.stage}/verify-api-domain-name, ""}',
+        domainName: '${ssm:/${self:custom.project}/${self:provider.stage}/verify-api-domain-name, ""}',
         basePath: "",
         createRoute53Record: false,
         endpointType: "${self:provider.endpointType}",

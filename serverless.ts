@@ -1,25 +1,24 @@
 import type { AWS } from "@serverless/typescript";
-import { getArgumentValuesOrDefault, getAWSAccountId } from "@libs/utils";
+import { getArgumentValuesOrDefault } from "@libs/utils";
 import verify from "@functions/verify";
 
 const STAGE = getArgumentValuesOrDefault({ flag: "stage", defaultValue: "dev" });
 
 const serverlessConfiguration = async (): Promise<AWS> => {
-  const service = "api-verify-gov-sg";
+  const service = "notarise-verify-api";
   const region = "ap-southeast-1";
-  const ACCOUNT_ID = await getAWSAccountId();
 
   return {
     service,
     configValidationMode: "error",
-    plugins: ["serverless-esbuild", "serverless-offline-ssm", "serverless-offline", "serverless-domain-manager","serverless-stack-termination-protection","serverless-associate-waf"],
+    plugins: ["serverless-esbuild", "serverless-domain-manager", "serverless-stack-termination-protection", "serverless-associate-waf", "serverless-iamroles", "serverless-offline", "serverless-offline-ssm"],
     provider: {
       name: "aws",
       region,
       runtime: "nodejs18.x",
       memorySize: 256,
       timeout: 30,
-      stackName: `${service}-${STAGE}`,
+      stackName: 'notarise-${self:provider.stage}-verify-api',
       stage: STAGE,
       apiGateway: {
         minimumCompressionSize: 1024,
@@ -33,10 +32,10 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1",
         NODE_OPTIONS: "--enable-source-maps --stack-trace-limit=1000",
         STAGE,
-        NETWORK_NAME: "${ssm:/serverless/api-verify-gov-sg/NETWORK_NAME}",
-        INFURA_API_KEY: "${ssm:/serverless/api-verify-gov-sg/INFURA_API_KEY}",
-        ALCHEMY_API_KEY: "${ssm:/serverless/api-verify-gov-sg/ALCHEMY_API_KEY}",
-        WHITELISTED_ISSUERS: "${ssm:/serverless/api-verify-gov-sg/WHITELISTED_ISSUERS}",
+        NETWORK_NAME: "${ssm:/notarise/${self:provider.stage}/network-name}",
+        INFURA_API_KEY: "${ssm:/notarise/${self:provider.stage}/infura-api-key}",
+        ALCHEMY_API_KEY: "${ssm:/notarise/${self:provider.stage}/alchemy-api-key}",
+        WHITELISTED_ISSUERS: "${ssm:/notarise/${self:provider.stage}/whitelisted-issuers}",
       },
       tracing: {
         lambda: true,
@@ -48,21 +47,24 @@ const serverlessConfiguration = async (): Promise<AWS> => {
           executionLogging: true,
           level: "INFO",
           roleManagedExternally: true,
-          fullExecutionData: false,
+          fullExecutionData: true,
+          role: '${ssm:/notarise/${self:provider.stage}/cloudwatch-log-role-arn}',
         },
       },
-      deploymentBucket: "notarise-serverless-deployment",
+      deploymentBucket: {
+        name: '${self:custom.infra.deploymentBucket}',
+      },
+      endpointType:
+        '${ssm:/notarise/${self:provider.stage}/api-gateway-endpoint-type, "REGIONAL"}',
       iam: {
         role: {
-          name: `api-verify-gov-sg-${STAGE}-lambda`,
-          permissionsBoundary: `arn:aws:iam::${ACCOUNT_ID}:policy/GCCIAccountBoundary`,
+          name: "${self:provider.stackName}-lambda",
           statements: [
             {
-              // https://docs.aws.amazon.com/systems-manager/latest/userguide/sysman-paramstore-access.html
-              Effect: "Allow",
-              Action: ["ssm:GetParameter", "ssm:GetParameters"],
-              Resource: [`arn:aws:ssm:ap-southeast-1:${ACCOUNT_ID}:parameter/serverless/api-verify-gov-sg/*`],
-            },
+              Effect: 'Allow',
+              Action: 'cloudwatch:putMetricData',
+              Resource: '*',
+            }
           ],
         },
       },
@@ -72,37 +74,43 @@ const serverlessConfiguration = async (): Promise<AWS> => {
     functions: { verify },
     package: { individually: true },
     custom: {
+      infra: {
+        deploymentBucket:
+          '${ssm:/notarise/${self:provider.stage}/deployment-bucket}',
+        securityGroupIds:
+          '${ssm:/notarise/${self:provider.stage}/security-group-ids}',
+        subnetIds: '${ssm:/notarise/${self:provider.stage}/subnet-ids}',
+      },
       associateWaf: {
-        name: process.env.WAF_NAME,
+        name: "${ssm:/notarise/${self:provider.stage}/wafv2-name}",
         version: 'V2'
       },
       serverlessTerminationProtection: {
         stages: ["production", "stg"],
+      },
+      "serverless-offline": {
+        allowCache: true,
+      },
+      "serverless-offline-ssm": {
+        stages: ["offline"],
       },
       esbuild: {
         bundle: true,
         minify: false,
         sourcemap: true,
         exclude: ["aws-sdk"],
-        target: "node14",
+        target: "node18",
         define: { "require.resolve": undefined },
         platform: "node",
         concurrency: 10,
       },
-      "serverless-offline": {
-        allowCache: true,
-      },
-      "serverless-offline-ssm": {
-        stages: ["dev", "offline"],
-      },
       customDomain: {
-        domainName: process.env.DOMAIN_NAME,
-        certificateName: process.env.DOMAIN_NAME,
+        domainName: '${ssm:/notarise/${self:provider.stage}/verify-api-domain-name, ""}',
         basePath: "",
-        stage: STAGE,
         createRoute53Record: false,
-        endpointType: "edge",
-        autoDomain: false,
+        endpointType: "${self:provider.endpointType}",
+        securityPolicy: "tls_1_2",
+        autoDomain: true,
       },
     },
   };

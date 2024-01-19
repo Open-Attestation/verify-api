@@ -9,7 +9,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
 
   return {
     useDotenv: true,
-    service: "${env:PROJECT_NAME}-verify-api",
+    service: "${self:custom.project}-verify-api",
     configValidationMode: "error",
     plugins: ["serverless-esbuild", "serverless-domain-manager", "serverless-stack-termination-protection", "serverless-associate-waf", "serverless-iamroles", "serverless-offline", "serverless-offline-ssm"],
     provider: {

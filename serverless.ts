@@ -112,7 +112,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         createRoute53Record: false,
         endpointType: "${self:provider.endpointType}",
         securityPolicy: "tls_1_2",
-        autoDomain: true,
+        autoDomain: '${ssm:/${self:custom.project}/${self:provider.stage}/verify-auto-create-domain, "true"}'
       },
     },
   };

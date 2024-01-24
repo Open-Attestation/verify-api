@@ -16,6 +16,7 @@ const serverlessConfiguration = async (): Promise<AWS> => {
       name: "aws",
       region,
       runtime: "nodejs18.x",
+      apiName: "${self:provider.stackName}",
       memorySize: 256,
       timeout: 30,
       stackName: '${self:custom.project}-${self:provider.stage}-verify-api',

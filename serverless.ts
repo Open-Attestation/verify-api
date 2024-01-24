@@ -106,14 +106,18 @@ const serverlessConfiguration = async (): Promise<AWS> => {
         platform: "node",
         concurrency: 10,
       },
-      customDomain: {
-        domainName: '${ssm:/${self:custom.project}/${self:provider.stage}/verify-api-domain-name, ""}',
-        basePath: "",
-        createRoute53Record: false,
-        endpointType: "${self:provider.endpointType}",
-        securityPolicy: "tls_1_2",
-        autoDomain: '${ssm:/${self:custom.project}/${self:provider.stage}/verify-auto-create-domain, "true"}'
+      setCustomDomain: {
+        "true": [{
+          domainName: '${ssm:/${self:custom.project}/${self:provider.stage}/verify-api-domain-name, ""}',
+          basePath: "",
+          createRoute53Record: false,
+          endpointType: "${self:provider.endpointType}",
+          securityPolicy: "tls_1_2",
+          autoDomain: true
+        }],
+        "false": []
       },
+      customDomains: "${self:custom.setCustomDomain.${ssm:/${self:custom.project}/${self:provider.stage}/verify-auto-create-domain, 'true'}}",
     },
   };
 };

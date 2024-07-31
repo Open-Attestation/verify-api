@@ -30,7 +30,7 @@
     "http-errors": "^2.0.0",
     "node-cache": "^5.1.2",
     "serverless-associate-waf": "^1.2.1",
-    "serverless-domain-manager": "^7.3.3",
+    "serverless-domain-manager": "^7.3.8",
     "serverless-iamroles": "^3.2.7",
     "yargs": "^17.7.2"
   },
